@@ -9,7 +9,7 @@
     <groupId>net.thucydides.plugins.jira</groupId>
     <artifactId>thucydides-structure-plugin-requirements-provider</artifactId>
     <version>0.9.211-SNAPSHOT</version>
-    <name>thucydides-jira-requirements-provider</name>
+    <name>thucydides-structure-plugin-jira-requirements-provider</name>
     <packaging>jar</packaging>
 
     <description>Read Thucydides requirements from JIRA using the JIRA Structure plugin</description>
