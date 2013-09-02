@@ -62,7 +62,6 @@ class WhenReadingStoriesFromJira extends Specification {
             environmentVariables.setProperty("structure.id","1")
             StructureRequirementsProvider requirementsProvider = new StructureRequirementsProvider(environmentVariables)
         when:
-            //10008:0,10011:1,10012:1,10013:1,10009:0,10014:1,10015:1,10010:0,10016:1
             def requirements = requirementsProvider.getRequirements()
         then:
             requirements.size() == 3
@@ -100,6 +99,18 @@ class WhenReadingStoriesFromJira extends Specification {
             parentRequirement.isPresent() && parentRequirement.get().cardNumber == "PAV-15"
     }
 
+    def "should find the description of the parent requirement from a given issue"() {
+        given:
+            def requirementsProvider = new StructureRequirementsProvider(environmentVariables)
+            def testOutcome = Mock(TestOutcome)
+            testOutcome.getIssueKeys() >> ["PAV-16"]
+        when:
+            def parentRequirement = requirementsProvider.getParentRequirementOf(testOutcome)
+        then:
+            parentRequirement.isPresent() && parentRequirement.get().getNarrativeText() != null
+    }
+
+
     def "should not find the parent requirement from a given issue if none exist"() {
         given:
             def requirementsProvider = new StructureRequirementsProvider(environmentVariables)
@@ -121,8 +132,32 @@ class WhenReadingStoriesFromJira extends Specification {
             def tags = requirementsProvider.getTagsFor(testOutcome)
         then:
             tags.contains(TestTag.withName("Transmission dashboard").andType("Story")) &&
-            tags.contains(TestTag.withName("Monitoring a Transmission").andType("New Feature"))
+            tags.contains(TestTag.withName("Monitoring a Transmission").andType("Feature"))
     }
+
+    def "should retrieve the description for a given issue"() {
+        given:
+            def requirementsProvider = new StructureRequirementsProvider(environmentVariables)
+            def testOutcome = Mock(TestOutcome)
+            testOutcome.getIssueKeys() >> ["PAV-18"]
+        when:
+            def story = requirementsProvider.getParentRequirementOf(testOutcome)
+        then:
+            story.get().narrativeText == "<p>Viewing Transactions in a Transmission</p>"
+    }
+
+
+    def "should retrieve the rendered description for a given issue"() {
+        given:
+            def requirementsProvider = new StructureRequirementsProvider(environmentVariables)
+            def testOutcome = Mock(TestOutcome)
+            testOutcome.getIssueKeys() >> ["PAV-2"]
+        when:
+            def story = requirementsProvider.getParentRequirementOf(testOutcome)
+        then:
+            story.get().narrativeText.contains("<b>Cats File</b> User Story 1 description<br/>")
+    }
+
 
     def "should find tags for a given issue from the ID number"() {
         given:
@@ -133,7 +168,7 @@ class WhenReadingStoriesFromJira extends Specification {
             def tags = requirementsProvider.getTagsFor(testOutcome)
         then:
             tags.contains(TestTag.withName("Transmission dashboard").andType("Story")) &&
-            tags.contains(TestTag.withName("Monitoring a Transmission").andType("New Feature"))
+            tags.contains(TestTag.withName("Monitoring a Transmission").andType("Feature"))
         }
 
     def "should find tags for a given issue from the hashed ID number"() {
@@ -145,7 +180,7 @@ class WhenReadingStoriesFromJira extends Specification {
             def tags = requirementsProvider.getTagsFor(testOutcome)
         then:
             tags.contains(TestTag.withName("Transmission dashboard").andType("Story")) &&
-            tags.contains(TestTag.withName("Monitoring a Transmission").andType("New Feature"))
+            tags.contains(TestTag.withName("Monitoring a Transmission").andType("Feature"))
     }
 
     def "should find a requirement with a given tag"() {

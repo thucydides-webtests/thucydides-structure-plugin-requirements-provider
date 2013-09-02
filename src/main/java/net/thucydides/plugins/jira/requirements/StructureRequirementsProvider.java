@@ -86,7 +86,7 @@ public class StructureRequirementsProvider implements RequirementsTagProvider {
             jiraClient.checkValid(response);
             String jsonResponse = response.readEntity(String.class);
             JSONObject responseObject = new JSONObject(jsonResponse);
-            JSONArray structureEntries = (JSONArray) responseObject.getJSONArray("structures");
+            JSONArray structureEntries = responseObject.getJSONArray("structures");
             for (int i = 0; i < structureEntries.length(); i++) {
                 JSONObject structure = structureEntries.getJSONObject(i);
                 ids.add(getIdFrom(structure));
@@ -117,7 +117,7 @@ public class StructureRequirementsProvider implements RequirementsTagProvider {
         return Requirement.named(issue.getSummary())
                 .withOptionalCardNumber(issue.getKey())
                 .withType(issue.getType())
-                .withNarrativeText(issue.getDescription());
+                .withNarrativeText(issue.getRenderedDescription());
     }
 
     @Override
@@ -125,8 +125,12 @@ public class StructureRequirementsProvider implements RequirementsTagProvider {
         List<String> issueKeys = testOutcome.getIssueKeys();
         if (!issueKeys.isEmpty()) {
             try {
-                List<IssueSummary> parentIssues = jiraClient.findByJQL("key=" + issueKeys.get(0));
-                return Optional.of(requirementFrom(parentIssues.get(0)));
+                Optional<IssueSummary> parentIssue = jiraClient.findByKey(issueKeys.get(0));
+                if (parentIssue.isPresent()) {
+                    return Optional.of(requirementFrom(parentIssue.get()));
+                } else {
+                    return Optional.absent();
+                }
             } catch (JSONException e) {
                 if (noSuchIssue(e)) {
                     return Optional.absent();
@@ -179,31 +183,34 @@ public class StructureRequirementsProvider implements RequirementsTagProvider {
 
     private Collection<? extends TestTag> tagsFromIssue(String issueKey) {
 
-        System.out.println("Reading tags from issue " + issueKey);
         List<TestTag> tags = Lists.newArrayList();
-
         String decodedIssueKey = decoded(issueKey);
-        List<IssueSummary> behaviourIssues = Lists.newArrayList();
-        try {
-            behaviourIssues = jiraClient.findByJQL("key=" + decodedIssueKey);
-        } catch (JSONException e) {
-            if (!noSuchIssue(e)) {
-                throw new IllegalArgumentException(e);
-            }
-        }
-        if (!behaviourIssues.isEmpty()) {
-            IssueSummary behaviourIssue = behaviourIssues.get(0);
-            tags.add(TestTag.withName(behaviourIssue.getSummary()).andType(behaviourIssue.getType()));
-        }
+        addIssueTags(tags, decodedIssueKey);
+        addRequirementTags(tags, decodedIssueKey);
+        return tags;
+    }
 
+    private void addRequirementTags(List<TestTag> tags, String decodedIssueKey) {
         List<Requirement> parentRequirements = getParentRequirementsOf(decodedIssueKey);
         for(Requirement parentRequirement : parentRequirements) {
             TestTag parentTag = TestTag.withName(parentRequirement.getName())
                                        .andType(parentRequirement.getType());
             tags.add(parentTag);
         }
-        return tags;
     }
+
+    private void addIssueTags(List<TestTag> tags, String decodedIssueKey) {
+        Optional<IssueSummary> behaviourIssue = Optional.absent();
+        try {
+            behaviourIssue = jiraClient.findByKey(decodedIssueKey);
+        } catch (JSONException e) {
+            logger.warn("Could not read tags for issue " + decodedIssueKey, e);
+        }
+        if (behaviourIssue.isPresent()) {
+            tags.add(TestTag.withName(behaviourIssue.get().getSummary()).andType(behaviourIssue.get().getType()));
+        }
+    }
+
 
     private boolean noSuchIssue(JSONException e) {
         return e.getMessage().contains("error 400");
@@ -267,16 +274,23 @@ public class StructureRequirementsProvider implements RequirementsTagProvider {
     private List<Requirement> loadRequirements(List<StructureRequirementsTree.RequirementTreeNode> nodes) throws JSONException {
         List<Requirement> requirements = Lists.newArrayList();
         for(StructureRequirementsTree.RequirementTreeNode node : nodes) {
-            List<Requirement> children = loadRequirements(node.getChildren());
-            Requirement currentRequirement = loadRequirementById(node.id).withChildren(children);
-            requirements.add(currentRequirement);
+            Optional<Requirement> associatedRequirement = loadRequirementById(node.id);
+            if (associatedRequirement.isPresent()) {
+                List<Requirement> children = loadRequirements(node.getChildren());
+                Requirement currentRequirement = associatedRequirement.get().withChildren(children);
+                requirements.add(currentRequirement);
+            }
         }
         return requirements;
     }
 
-    private Requirement loadRequirementById(int id) throws JSONException {
-        IssueSummary issue = jiraClient.findByKey(Integer.toString(id));
-        return requirementFrom(issue);
+    private Optional<Requirement> loadRequirementById(int id) throws JSONException {
+        Optional<IssueSummary> issue = jiraClient.findByKey(Integer.toString(id));
+        if (issue.isPresent()) {
+            return Optional.of(requirementFrom(issue.get()));
+        } else {
+            return Optional.absent();
+        }
     }
 
 }
