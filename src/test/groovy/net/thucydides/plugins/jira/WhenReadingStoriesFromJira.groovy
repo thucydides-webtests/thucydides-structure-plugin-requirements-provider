@@ -4,6 +4,7 @@ import net.thucydides.core.model.TestOutcome
 import net.thucydides.core.model.TestTag
 import net.thucydides.core.requirements.model.Requirement
 import net.thucydides.core.util.MockEnvironmentVariables
+import net.thucydides.plugins.jira.requirements.JIRARequirementsProvider
 import net.thucydides.plugins.jira.requirements.StructureRequirementsProvider
 import spock.lang.Specification
 
@@ -203,4 +204,17 @@ class WhenReadingStoriesFromJira extends Specification {
             !requirement.isPresent()
     }
 
+
+    def "should find version details for a given issue"() {
+        given:
+            def requirementsProvider = new StructureRequirementsProvider(environmentVariables)
+            def testOutcome = Mock(TestOutcome)
+            testOutcome.getIssueKeys() >> ["PAV-4"]
+        when:
+            def tags = requirementsProvider.getTagsFor(testOutcome)
+        then:
+            tags.contains(TestTag.withName("Iteration 2.2").andType("Version"))
+        and:
+            tags.contains(TestTag.withName("Release 2").andType("Version"))
+    }
 }

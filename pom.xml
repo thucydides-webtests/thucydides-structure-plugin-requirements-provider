@@ -17,7 +17,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <thucydides.version>0.9.210</thucydides.version>
-        <thucydides.jira.version>0.9.211</thucydides.jira.version>
+        <thucydides.jira.version>0.9.213</thucydides.jira.version>
     </properties>
 
     <scm>
@@ -63,6 +63,11 @@
             <groupId>com.googlecode.lambdaj</groupId>
             <artifactId>lambdaj</artifactId>
             <version>2.3.3</version>
+        </dependency>
+        <dependency>
+            <groupId>net.thucydides.plugins.jira</groupId>
+            <artifactId>thucydides-jira-requirements-provider</artifactId>
+            <version>0.9.213-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <build>
