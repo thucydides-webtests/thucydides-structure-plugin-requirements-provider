@@ -17,7 +17,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <thucydides.version>0.9.210</thucydides.version>
-        <thucydides.jira.version>0.9.213</thucydides.jira.version>
+        <thucydides.jira.version>0.9.212</thucydides.jira.version>
     </properties>
 
     <scm>
@@ -67,7 +67,7 @@
         <dependency>
             <groupId>net.thucydides.plugins.jira</groupId>
             <artifactId>thucydides-jira-requirements-provider</artifactId>
-            <version>0.9.213-SNAPSHOT</version>
+            <version>0.9.213</version>
         </dependency>
     </dependencies>
     <build>
