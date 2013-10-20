@@ -8,12 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
-/**
- * A description goes here.
- * User: john
- * Date: 27/08/13
- * Time: 8:07 PM
- */
 public class StructureRequirementsTree {
 
     public static class RequirementTreeNode {

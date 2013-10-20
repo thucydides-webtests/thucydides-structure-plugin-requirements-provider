@@ -1,7 +1,6 @@
 package net.thucydides.plugins.jira.requirements;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -13,10 +12,8 @@ import net.thucydides.core.requirements.model.Requirement;
 import net.thucydides.core.util.EnvironmentVariables;
 import net.thucydides.plugins.jira.client.JerseyJiraClient;
 import net.thucydides.plugins.jira.domain.IssueSummary;
-import net.thucydides.plugins.jira.domain.Version;
 import net.thucydides.plugins.jira.service.JIRAConfiguration;
 import net.thucydides.plugins.jira.service.SystemPropertiesJIRAConfiguration;
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -117,7 +114,8 @@ public class StructureRequirementsProvider implements RequirementsTagProvider {
         return Requirement.named(issue.getSummary())
                 .withOptionalCardNumber(issue.getKey())
                 .withType(issue.getType())
-                .withNarrativeText(issue.getRenderedDescription());
+                .withNarrativeText(issue.getRenderedDescription())
+                .withReleaseVersions(issue.getFixVersions());
     }
 
     @Override
