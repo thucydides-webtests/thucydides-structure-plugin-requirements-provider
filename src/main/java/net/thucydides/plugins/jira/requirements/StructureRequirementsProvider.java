@@ -47,7 +47,8 @@ public class StructureRequirementsProvider implements RequirementsTagProvider {
         logConnectionDetailsFor(jiraConfiguration);
         jiraClient = new JerseyJiraClient(jiraConfiguration.getJiraUrl(),
                                           jiraConfiguration.getJiraUser(),
-                                          jiraConfiguration.getJiraPassword());
+                                          jiraConfiguration.getJiraPassword(),
+                                          jiraConfiguration.getProject());
         this.projectKey = jiraConfiguration.getProject();
         this.providedStructureId = environmentVariables.getPropertyAsInteger("structure.id",0);
     }
