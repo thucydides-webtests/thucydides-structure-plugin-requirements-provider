@@ -4,7 +4,6 @@ import net.thucydides.core.model.TestOutcome
 import net.thucydides.core.model.TestTag
 import net.thucydides.core.requirements.model.Requirement
 import net.thucydides.core.util.MockEnvironmentVariables
-import net.thucydides.plugins.jira.requirements.JIRARequirementsProvider
 import net.thucydides.plugins.jira.requirements.StructureRequirementsProvider
 import spock.lang.Specification
 
@@ -108,7 +107,7 @@ class WhenReadingStoriesFromJira extends Specification {
         when:
             def parentRequirement = requirementsProvider.getParentRequirementOf(testOutcome)
         then:
-            parentRequirement.isPresent() && parentRequirement.get().getNarrativeText() != null
+            parentRequirement.isPresent() && parentRequirement.get().narrative.text != null
     }
 
 
@@ -144,7 +143,7 @@ class WhenReadingStoriesFromJira extends Specification {
         when:
             def story = requirementsProvider.getParentRequirementOf(testOutcome)
         then:
-            story.get().narrativeText == "<p>Viewing Transactions in a Transmission</p>"
+            story.get().narrative.text == "<p>Viewing Transactions in a Transmission</p>"
     }
 
 
@@ -156,7 +155,7 @@ class WhenReadingStoriesFromJira extends Specification {
         when:
             def story = requirementsProvider.getParentRequirementOf(testOutcome)
         then:
-            story.get().narrativeText.contains("<b>Cats File</b> User Story 1 description<br/>")
+            story.get().narrative.text.contains("<b>Cats File</b> User Story 1 description<br/>")
     }
 
 

@@ -115,7 +115,7 @@ public class StructureRequirementsProvider implements RequirementsTagProvider {
         return Requirement.named(issue.getSummary())
                 .withOptionalCardNumber(issue.getKey())
                 .withType(issue.getType())
-                .withNarrativeText(issue.getRenderedDescription())
+                .withNarrative(issue.getRendered().getDescription())
                 .withReleaseVersions(issue.getFixVersions());
     }
 
